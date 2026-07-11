@@ -19,18 +19,18 @@ export async function translateTexts(
   targetLanguage: PlanLanguage,
   sourceLanguage: PlanLanguage = "en",
 ): Promise<string[]> {
-  const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY?.trim();
-
-  if (!apiKey) {
-    throw new Error("GOOGLE_TRANSLATE_API_KEY is not configured");
-  }
-
   if (texts.length === 0) {
     return [];
   }
 
   if (targetLanguage === sourceLanguage) {
     return texts;
+  }
+
+  const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY?.trim();
+
+  if (!apiKey) {
+    throw new Error("GOOGLE_TRANSLATE_API_KEY is not configured");
   }
 
   const params = new URLSearchParams();

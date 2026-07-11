@@ -6,11 +6,8 @@ import {
   translatePlanContent,
 } from "@/lib/google-translate";
 import { mapHousingTypeToEnum } from "@/lib/housing.server";
-import {
-  isValidPlanLanguage,
-  LANGUAGE_LABELS,
-  type PlanLanguage,
-} from "@/lib/languages";
+import { LANGUAGE_LABELS } from "@/lib/languages";
+import { validatePlanRequest } from "@/lib/plan-validation";
 import { isGeneratedPlan } from "@/lib/types/plan";
 import prisma from "@/lib/prisma";
 
@@ -80,58 +77,26 @@ async function generatePlanWithOpenAI(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const location = typeof body.location === "string" ? body.location.trim() : "";
-    const familySize = Number(body.familySize);
-    const housingType =
-      typeof body.housingType === "string" ? body.housingType.trim() : "";
-    const language =
-      typeof body.language === "string" ? body.language.trim() : "en";
-    const specialNeeds =
-      typeof body.specialNeeds === "string" ? body.specialNeeds.trim() : "";
+    const validation = validatePlanRequest(body);
 
-    if (!location) {
-      return NextResponse.json(
-        { error: "Location is required" },
-        { status: 400 },
-      );
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    if (!Number.isInteger(familySize) || familySize < 1 || familySize > 20) {
-      return NextResponse.json(
-        { error: "Family size must be between 1 and 20" },
-        { status: 400 },
-      );
-    }
-
-    const validHousingTypes = ["Apartment", "Independent House", "Ground Floor"];
-
-    if (!validHousingTypes.includes(housingType)) {
-      return NextResponse.json(
-        { error: "Invalid housing type" },
-        { status: 400 },
-      );
-    }
-
-    if (!isValidPlanLanguage(language)) {
-      return NextResponse.json(
-        { error: "Invalid language preference" },
-        { status: 400 },
-      );
-    }
-
-    const planLanguage = language as PlanLanguage;
-    const languageLabel = LANGUAGE_LABELS[planLanguage];
+    const { location, familySize, housingType, language, specialNeeds } =
+      validation.data;
+    const languageLabel = LANGUAGE_LABELS[language];
     const userPayload = {
       location,
       familySize,
       housingType,
-      language: planLanguage,
+      language,
       languageLabel,
       specialNeeds: specialNeeds || null,
     };
 
     const useGoogleTranslate =
-      planLanguage !== "en" && isGoogleTranslateAvailable();
+      language !== "en" && isGoogleTranslateAvailable();
 
     let checklist: string[];
     let recommendations: string[];
@@ -146,7 +111,7 @@ export async function POST(request: NextRequest) {
         const translated = await translatePlanContent(
           englishPlan.checklist,
           englishPlan.recommendations,
-          planLanguage,
+          language,
         );
         checklist = translated.checklist;
         recommendations = translated.recommendations;
@@ -162,7 +127,7 @@ export async function POST(request: NextRequest) {
         checklist = nativePlan.checklist;
         recommendations = nativePlan.recommendations;
       }
-    } else if (planLanguage === "en") {
+    } else if (language === "en") {
       const englishPlan = await generatePlanWithOpenAI(
         ENGLISH_SYSTEM_PROMPT,
         userPayload,
@@ -187,7 +152,7 @@ export async function POST(request: NextRequest) {
         location,
         familySize,
         housingType: housingEnum,
-        language: planLanguage,
+        language,
         specialNeeds: specialNeeds || null,
         checklist,
         safetyRecommendations: recommendations,
@@ -209,7 +174,7 @@ export async function POST(request: NextRequest) {
       id: savedPlan.id,
       checklist,
       recommendations,
-      language: planLanguage,
+      language,
       translatedWith: useGoogleTranslate ? "google" : "openai",
     });
   } catch (error) {
