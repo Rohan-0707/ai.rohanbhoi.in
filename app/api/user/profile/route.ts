@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth";
+import { decryptData, encryptData } from "@/lib/encryption";
 import prisma from "@/lib/prisma";
 
 function formatAccountEmail(email: string, phone: string | null): string {
@@ -36,7 +37,9 @@ export async function GET() {
     return NextResponse.json({
       email: formatAccountEmail(user.email, user.phone),
       phone: user.phone ? `+91 ${user.phone}` : null,
-      defaultLocation: user.defaultLocation ?? "",
+      defaultLocation: user.defaultLocation
+        ? decryptData(user.defaultLocation)
+        : "",
       housingType: user.housingType ?? "Apartment",
       familySize: user.familySize ?? 4,
     });
@@ -84,7 +87,9 @@ export async function PATCH(request: NextRequest) {
     await prisma.user.update({
       where: { id: userId },
       data: {
-        ...(defaultLocation !== undefined ? { defaultLocation } : {}),
+        ...(defaultLocation !== undefined
+          ? { defaultLocation: encryptData(defaultLocation) }
+          : {}),
         ...(housingType !== undefined ? { housingType } : {}),
         ...(familySize !== undefined ? { familySize } : {}),
       },

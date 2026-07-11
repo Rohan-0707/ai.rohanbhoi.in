@@ -31,7 +31,7 @@ model User {
   otpAttempts      Int             @default(0) @map("otp_attempts")
   otpChannel       String?         @map("otp_channel") @db.VarChar(20)
   phone            String?         @db.VarChar(20)
-  defaultLocation  String?         @map("default_location") @db.VarChar(255)
+  defaultLocation  String?         @map("default_location") @db.Text
   housingType      String?         @map("housing_type") @db.VarChar(50)
   familySize       Int?            @map("family_size")
   role             UserRole        @default(USER)
@@ -51,7 +51,7 @@ model EmergencyPlan {
   id                    String      @id @default(cuid())
   userId                String?     @map("user_id")
   user                  User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  location              String      @db.VarChar(255)
+  location              String      @db.Text
   familySize            Int         @map("family_size")
   housingType           HousingType @map("housing_type")
   language              String      @default("en") @db.VarChar(10)
@@ -63,6 +63,5 @@ model EmergencyPlan {
   updatedAt             DateTime    @updatedAt @map("updated_at")
 
   @@index([userId])
-  @@index([location])
   @@map("emergency_plans")
 }

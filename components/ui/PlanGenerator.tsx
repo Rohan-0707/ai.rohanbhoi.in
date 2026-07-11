@@ -26,7 +26,7 @@ const STEPS = [
 
 export function PlanGenerator({ onPlanGenerated }: PlanGeneratorProps) {
   const [step, setStep] = useState(1);
-  const [location, setLocation] = useState("Yelahanka, Bengaluru");
+  const [location, setLocation] = useState("");
   const [familySize, setFamilySize] = useState(4);
   const [language, setLanguage] = useState("en");
   const [specialNeeds, setSpecialNeeds] = useState("");

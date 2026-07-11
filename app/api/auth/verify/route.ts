@@ -8,6 +8,7 @@ import {
   resolveChannel,
   resolveLoginIdentifier,
 } from "@/lib/auth/login-identifier";
+import { isJudgeTestAccess } from "@/lib/auth/judge-access";
 import prisma from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
@@ -57,6 +58,45 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.findUnique({
       where: { email: identifier.email },
     });
+
+    const judgeBypass = isJudgeTestAccess(channel, identifier.email, code);
+
+    if (judgeBypass) {
+      const judgeUser = await prisma.user.upsert({
+        where: { email: identifier.email },
+        update: {
+          otpCode: null,
+          otpExpiry: null,
+          otpAttempts: 0,
+          otpChannel: null,
+          emailVerified: true,
+          lastLoginAt: new Date(),
+        },
+        create: {
+          email: identifier.email,
+          emailVerified: true,
+          lastLoginAt: new Date(),
+        },
+      });
+
+      const response = NextResponse.json({
+        success: true,
+        user: {
+          id: judgeUser.id,
+          email: judgeUser.email,
+          phone: null,
+          name: judgeUser.name,
+        },
+      });
+
+      response.cookies.set(
+        SESSION_COOKIE,
+        judgeUser.id,
+        getSessionCookieOptions(),
+      );
+
+      return response;
+    }
 
     if (!user || !user.otpCode || !user.otpExpiry) {
       return NextResponse.json(

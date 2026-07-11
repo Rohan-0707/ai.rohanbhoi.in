@@ -13,6 +13,7 @@ module.exports = {
       env: {
         NODE_ENV: "development",
       },
+      env_file: ".env",
       error_file: "./logs/dev-web-error.log",
       out_file: "./logs/dev-web-out.log",
       merge_logs: true,

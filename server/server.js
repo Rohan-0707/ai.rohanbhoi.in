@@ -80,32 +80,30 @@ function parseAuthorizationToken(authHeader) {
     : authHeader;
 }
 
-function buildDefaultAlertPayload() {
-  return {
-    type: "FLASH_FLOOD",
-    severity: "CRITICAL",
-    headline: "Emergency: Flash Flood Warning",
-    message:
-      "Severe waterlogging detected in Yelahanka New Town. Seek higher ground immediately. Do not attempt to cross flooded roadways.",
-    timestamp: new Date().toISOString(),
-  };
-}
-
-function resolveAlertPayload(body) {
-  const defaults = buildDefaultAlertPayload();
-
+function parseAlertPayload(body) {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
-    return defaults;
+    return { error: "Request body must be a JSON object with alert fields" };
+  }
+
+  const requiredFields = ["type", "severity", "headline", "message"];
+
+  for (const field of requiredFields) {
+    if (typeof body[field] !== "string" || !body[field].trim()) {
+      return { error: `Missing or invalid field: ${field}` };
+    }
   }
 
   return {
-    type: typeof body.type === "string" ? body.type : defaults.type,
-    severity:
-      typeof body.severity === "string" ? body.severity : defaults.severity,
-    headline:
-      typeof body.headline === "string" ? body.headline : defaults.headline,
-    message: typeof body.message === "string" ? body.message : defaults.message,
-    timestamp: new Date().toISOString(),
+    payload: {
+      type: body.type.trim(),
+      severity: body.severity.trim(),
+      headline: body.headline.trim(),
+      message: body.message.trim(),
+      timestamp:
+        typeof body.timestamp === "string" && body.timestamp.trim()
+          ? body.timestamp.trim()
+          : new Date().toISOString(),
+    },
   };
 }
 
@@ -175,12 +173,19 @@ async function handleHttpRequest(req, res) {
       return;
     }
 
-    const payload = resolveAlertPayload(body);
+    const resolved = parseAlertPayload(body);
+
+    if (resolved.error) {
+      sendJson(res, 400, { error: resolved.error }, origin);
+      return;
+    }
+
+    const payload = resolved.payload;
     const recipients = io.engine.clientsCount;
 
     io.emit("severe_weather_alert", payload);
 
-    log("info", "Jury Mode alert triggered", {
+    log("info", "Admin alert triggered", {
       event: "severe_weather_alert",
       type: payload.type,
       severity: payload.severity,

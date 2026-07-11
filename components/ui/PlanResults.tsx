@@ -1,10 +1,21 @@
 import type { PlanApiResponse } from "@/lib/types/plan";
+import { LANGUAGE_LABELS, type PlanLanguage } from "@/lib/languages";
 
 type PlanResultsProps = {
   plan: PlanApiResponse;
 };
 
+function getLanguageLabel(code?: string): string | null {
+  if (!code || !(code in LANGUAGE_LABELS)) {
+    return null;
+  }
+
+  return LANGUAGE_LABELS[code as PlanLanguage];
+}
+
 export function PlanResults({ plan }: PlanResultsProps) {
+  const languageLabel = getLanguageLabel(plan.language);
+
   return (
     <section className="mt-8 space-y-6">
       <div className="rounded-2xl border border-teal-200 bg-teal-50 px-5 py-4">
@@ -12,6 +23,12 @@ export function PlanResults({ plan }: PlanResultsProps) {
           Your family plan is ready. Review the checklist below — it&apos;s saved
           automatically to your account.
         </p>
+        {languageLabel && (
+          <p className="mt-2 text-xs text-teal-700">
+            Language: {languageLabel}
+            {plan.translatedWith === "google" && " · translated via Google Cloud Translation"}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

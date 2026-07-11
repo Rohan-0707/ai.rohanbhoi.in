@@ -8,6 +8,7 @@ import {
 import { mapHousingTypeToEnum } from "@/lib/housing.server";
 import { LANGUAGE_LABELS } from "@/lib/languages";
 import { validatePlanRequest } from "@/lib/plan-validation";
+import { encryptData, encryptOptional } from "@/lib/encryption";
 import { isGeneratedPlan } from "@/lib/types/plan";
 import prisma from "@/lib/prisma";
 
@@ -149,14 +150,14 @@ export async function POST(request: NextRequest) {
     const savedPlan = await prisma.emergencyPlan.create({
       data: {
         userId,
-        location,
+        location: encryptData(location),
         familySize,
         housingType: housingEnum,
         language,
-        specialNeeds: specialNeeds || null,
+        specialNeeds: encryptOptional(specialNeeds || null),
         checklist,
         safetyRecommendations: recommendations,
-        summary: `Monsoon preparedness plan for ${location}`,
+        summary: "Monsoon preparedness plan",
       },
     });
 
@@ -164,7 +165,7 @@ export async function POST(request: NextRequest) {
       await prisma.user.update({
         where: { id: userId },
         data: {
-          defaultLocation: location,
+          defaultLocation: encryptData(location),
           housingType,
         },
       });

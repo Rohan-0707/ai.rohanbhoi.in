@@ -40,6 +40,9 @@ export function OtpLoginForm({
   const isEmbedded = variant === "embedded";
   const isGlass = tone === "glass";
 
+  const glassInputClass =
+    "min-h-12 w-full rounded-lg border border-white/10 bg-black/20 px-4 py-3 text-base text-white outline-none transition placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500";
+
   const canSend =
     selectedChannel === "whatsapp"
       ? Boolean(normalizePhoneInput(phone))
@@ -266,7 +269,7 @@ export function OtpLoginForm({
               <label className="block">
                 <span
                   className={`mb-2 block text-sm font-semibold ${
-                    isGlass ? "text-slate-200" : "text-slate-700"
+                    isGlass ? "text-slate-300" : "text-slate-700"
                   }`}
                 >
                   Email address
@@ -279,18 +282,26 @@ export function OtpLoginForm({
                   autoComplete="email"
                   inputMode="email"
                   placeholder="you@example.com"
-                  className={
-                    isGlass
-                      ? "min-h-12 w-full rounded-2xl border border-white/30 bg-white/90 px-4 py-3 text-base text-slate-900 shadow-sm outline-none backdrop-blur-sm transition placeholder:text-slate-400 focus:border-monsoon-secondary focus:ring-2 focus:ring-monsoon-secondary/20"
-                      : "monsoon-input"
-                  }
+                  className={isGlass ? glassInputClass : "monsoon-input"}
                 />
+                <p
+                  className={`mt-2 rounded-lg px-3 py-2 text-xs leading-relaxed ${
+                    isGlass
+                      ? "border border-teal-400/30 bg-teal-500/10 text-teal-100"
+                      : "border border-teal-200 bg-teal-50 text-teal-800"
+                  }`}
+                >
+                  <span className="font-semibold">Evaluator Access:</span> Use{" "}
+                  <span className="font-mono">judge@google.com</span> with OTP{" "}
+                  <span className="font-mono">123456</span> to test the
+                  dashboard.
+                </p>
               </label>
             ) : (
               <label className="block">
                 <span
                   className={`mb-2 block text-sm font-semibold ${
-                    isGlass ? "text-slate-200" : "text-slate-700"
+                    isGlass ? "text-slate-300" : "text-slate-700"
                   }`}
                 >
                   WhatsApp number
@@ -302,11 +313,7 @@ export function OtpLoginForm({
                   inputMode="tel"
                   autoComplete="tel"
                   placeholder="10-digit mobile number"
-                  className={
-                    isGlass
-                      ? "min-h-12 w-full rounded-2xl border border-white/30 bg-white/90 px-4 py-3 text-base text-slate-900 shadow-sm outline-none backdrop-blur-sm transition placeholder:text-slate-400 focus:border-monsoon-secondary focus:ring-2 focus:ring-monsoon-secondary/20"
-                      : "monsoon-input"
-                  }
+                  className={isGlass ? glassInputClass : "monsoon-input"}
                 />
                 <p
                   className={`mt-2 text-xs ${isGlass ? "text-slate-400" : "text-slate-500"}`}

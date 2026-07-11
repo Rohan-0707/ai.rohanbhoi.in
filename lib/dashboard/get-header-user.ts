@@ -1,4 +1,5 @@
 import { getSessionUserId } from "@/lib/auth";
+import { decryptOptional } from "@/lib/encryption";
 import prisma from "@/lib/prisma";
 import type { HeaderUser } from "@/components/dashboard/DashboardHeaderBar";
 
@@ -22,7 +23,7 @@ function buildDisplayName(
   }
 
   if (email.includes("@whatsapp.jalvayu")) {
-    return phone ? `+91 ${phone}` : "Field Operator";
+    return phone ? `+91 ${phone}` : "WhatsApp user";
   }
 
   return email;
@@ -33,8 +34,8 @@ export async function getHeaderUser(): Promise<HeaderUser> {
 
   if (!userId) {
     return {
-      displayName: "Field Operator",
-      initials: "FO",
+      displayName: "Guest",
+      initials: "GU",
       location: null,
     };
   }
@@ -51,8 +52,8 @@ export async function getHeaderUser(): Promise<HeaderUser> {
 
   if (!user) {
     return {
-      displayName: "Field Operator",
-      initials: "FO",
+      displayName: "Guest",
+      initials: "GU",
       location: null,
     };
   }
@@ -62,6 +63,6 @@ export async function getHeaderUser(): Promise<HeaderUser> {
   return {
     displayName,
     initials: buildInitials(displayName),
-    location: user.defaultLocation,
+    location: decryptOptional(user.defaultLocation),
   };
 }

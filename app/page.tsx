@@ -4,27 +4,34 @@ import { SESSION_COOKIE } from "@/lib/auth";
 import { CinematicHero } from "@/components/landing/CinematicHero";
 import { LandingFeatures } from "@/components/landing/LandingFeatures";
 import { LandingMobileNav } from "@/components/landing/LandingMobileNav";
+import { LiveWeatherWidget } from "@/components/ui/LiveWeatherWidget";
 
 export default async function LandingPage() {
   const cookieStore = await cookies();
   const isAuthenticated = Boolean(cookieStore.get(SESSION_COOKIE)?.value);
-  const loginHref = isAuthenticated ? "/dashboard" : "/";
+  const loginHref = isAuthenticated ? "/dashboard" : "/#get-started";
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-[calc(4.5rem+env(safe-area-inset-bottom))] text-slate-700 lg:pb-0">
-      <CinematicHero loginHref={loginHref} isAuthenticated={isAuthenticated} />
+    <div className="min-h-screen pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
+      <CinematicHero
+        loginHref={loginHref}
+        isAuthenticated={isAuthenticated}
+        weatherWidget={<LiveWeatherWidget variant="dark" />}
+      />
 
-      <LandingFeatures loginHref={loginHref} />
+      <main className="relative z-30 bg-slate-50 px-[15px] py-20 text-slate-900 md:px-[50px]">
+        <LandingFeatures loginHref={loginHref} />
+      </main>
 
-      <footer className="border-t border-slate-200 bg-white py-5">
-        <div className="ops-page-padding flex flex-col items-center justify-between gap-4 text-sm text-slate-500 sm:flex-row">
+      <footer className="relative z-30 border-t border-slate-200 bg-slate-50 px-[15px] py-6 text-slate-600 md:px-[50px]">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-sm sm:flex-row">
           <p>
             © {new Date().getFullYear()} JalVayu AI. Helping families stay safe
             through monsoon season.
           </p>
           <Link
             href={loginHref}
-            className="font-semibold text-monsoon-secondary transition hover:text-teal-700"
+            className="font-semibold text-teal-600 transition hover:text-teal-700"
           >
             {isAuthenticated ? "Go to Dashboard →" : "Create Your Free Plan →"}
           </Link>

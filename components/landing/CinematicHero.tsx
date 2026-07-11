@@ -8,17 +8,19 @@ import { IconCloudRain } from "@/components/dashboard/CitizenIcons";
 type CinematicHeroProps = {
   loginHref: string;
   isAuthenticated: boolean;
+  weatherWidget?: React.ReactNode;
 };
 
-const GLASS_CARD =
-  "rounded-2xl border border-white/25 bg-white/10 p-8 shadow-[0_8px_32px_rgba(0,0,0,0.28)] backdrop-blur-xl";
+const FROSTED_CARD =
+  "bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl";
 
 export function CinematicHero({
   loginHref,
   isAuthenticated,
+  weatherWidget,
 }: CinematicHeroProps) {
   return (
-    <section className="relative min-h-[85vh] overflow-hidden bg-slate-900">
+    <section className="relative min-h-[85vh] overflow-hidden bg-[#0B1120] text-white">
       <div className="absolute inset-0">
         <Image
           src="/monsoon-hero-bg-mobile.png"
@@ -38,25 +40,14 @@ export function CinematicHero({
         />
       </div>
 
-      <div
-        aria-hidden
-        className="absolute inset-0 z-10 bg-slate-900/30"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 z-10 bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-slate-900/25"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-0 z-10 bg-gradient-to-b from-slate-900/40 via-transparent to-slate-900/55"
-      />
+      <div aria-hidden className="absolute inset-0 bg-slate-950/80" />
 
-      <div className="relative z-20 flex min-h-[85vh] flex-col">
-        <header className="border-b border-white/10 bg-slate-900/30 backdrop-blur-md">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-[15px] py-4 md:px-[50px]">
+      <div className="relative z-10 flex min-h-[85vh] flex-col">
+        <header className="border-b border-white/10 px-[15px] py-4 md:px-[50px]">
+          <div className="mx-auto flex max-w-7xl items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-teal-400 backdrop-blur-sm">
-                <IconCloudRain className="h-6 w-6" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-teal-400">
+                <IconCloudRain className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">JalVayu AI</p>
@@ -65,47 +56,42 @@ export function CinematicHero({
             </Link>
             <Link
               href={loginHref}
-              className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-teal-400/50 hover:bg-white/15"
+              className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:border-teal-400/50"
             >
               {isAuthenticated ? "My Dashboard" : "Sign In"}
             </Link>
           </div>
         </header>
 
-        <div className="grid flex-1 grid-cols-1 items-center gap-12 px-[15px] py-10 md:grid-cols-2 md:px-[50px] md:py-14">
+        <div className="relative grid flex-1 grid-cols-1 items-center gap-12 px-[15px] py-12 md:px-[50px] lg:grid-cols-2 lg:py-16">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-teal-400">
+            {weatherWidget}
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-400">
               Monsoon preparedness
             </p>
-            <h1 className="mt-3 text-[1.75rem] font-bold leading-[1.12] text-white sm:text-4xl lg:text-5xl lg:leading-[1.08]">
+            <h1 className="mt-4 text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-5xl">
               Your Family&apos;s Monsoon Safety,{" "}
               <span className="text-teal-400">Personalized.</span>
             </h1>
-
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-200 sm:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
               Get custom emergency checklists, safe travel routes, and real-time
-              severe weather alerts tailored strictly to your neighborhood and
-              household.
+              severe weather alerts tailored to your neighborhood and household.
             </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <a
-                href="#how-it-works"
-                className="monsoon-touch-target inline-flex rounded-2xl border border-white/25 bg-white/10 px-6 py-3.5 text-center text-sm font-semibold text-white backdrop-blur-md transition hover:border-teal-400/50 hover:bg-white/15"
-              >
-                See How It Works
-              </a>
-            </div>
+            <a
+              href="#how-it-works"
+              className="monsoon-touch-target mt-8 inline-flex rounded-lg border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:border-teal-400/50 hover:bg-white/15"
+            >
+              See How It Works
+            </a>
           </div>
 
-          <div className="w-full">
-            <div className={GLASS_CARD}>
+          <div className="w-full lg:justify-self-end">
+            <div className={FROSTED_CARD} id="get-started">
               {isAuthenticated ? (
                 <div className="text-center">
                   <h2 className="text-xl font-bold text-white">Welcome back</h2>
                   <p className="mt-2 text-sm text-slate-300">
-                    Your dashboard is ready. Continue building your family&apos;s
-                    monsoon safety plan.
+                    Continue building your family&apos;s monsoon safety plan.
                   </p>
                   <Link
                     href={loginHref}
@@ -121,6 +107,8 @@ export function CinematicHero({
           </div>
         </div>
       </div>
+
+      <div className="absolute bottom-0 left-0 z-20 h-32 w-full bg-gradient-to-b from-transparent to-slate-50" />
     </section>
   );
 }

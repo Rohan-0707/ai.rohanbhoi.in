@@ -5,6 +5,8 @@ export type GeneratedPlan = {
 
 export type PlanApiResponse = GeneratedPlan & {
   id: string;
+  language?: string;
+  translatedWith?: "google" | "openai";
 };
 
 export function isGeneratedPlan(payload: unknown): payload is GeneratedPlan {

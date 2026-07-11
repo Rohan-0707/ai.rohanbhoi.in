@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth";
+import { decryptData, decryptOptional } from "@/lib/encryption";
 import prisma from "@/lib/prisma";
 
 export async function GET() {
@@ -27,6 +28,7 @@ export async function GET() {
         location: true,
         familySize: true,
         housingType: true,
+        specialNeeds: true,
         checklist: true,
         safetyRecommendations: true,
         summary: true,
@@ -34,7 +36,13 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ plans });
+    const decryptedPlans = plans.map((plan) => ({
+      ...plan,
+      location: decryptData(plan.location),
+      specialNeeds: decryptOptional(plan.specialNeeds),
+    }));
+
+    return NextResponse.json({ plans: decryptedPlans });
   } catch (error) {
     console.error("[api/user/history] Error:", error);
     return NextResponse.json(
