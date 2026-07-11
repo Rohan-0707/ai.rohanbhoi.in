@@ -44,7 +44,7 @@ describe("JuryAlertBanner", () => {
     mockSocket.off.mockClear();
   });
 
-  it("renders alert content when a valid severe weather alert is received", () => {
+  it("renders when active", () => {
     render(<JuryAlertBanner />);
 
     emitMockAlert(mockAlert);

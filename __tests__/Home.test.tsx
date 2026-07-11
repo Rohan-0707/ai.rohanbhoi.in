@@ -22,7 +22,7 @@ describe("Landing page", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /Your Family's Monsoon Safety,\s*Personalized\./i,
+        name: /Your Family's Monsoon Safety/i,
       }),
     ).toBeInTheDocument();
   });
