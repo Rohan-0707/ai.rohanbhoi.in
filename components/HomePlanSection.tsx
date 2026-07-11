@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { PlanGenerator } from "@/components/ui/PlanGenerator";
 import { PlanResults } from "@/components/ui/PlanResults";
@@ -10,12 +9,16 @@ type HomePlanSectionProps = {
   onPlanGenerated?: () => void;
   variant?: "dashboard" | "guest";
   loginHref?: string;
+  embedded?: boolean;
+  tone?: "light" | "glass";
 };
 
 export function HomePlanSection({
   onPlanGenerated,
   variant = "dashboard",
   loginHref = "/#get-started",
+  embedded = false,
+  tone = "light",
 }: HomePlanSectionProps) {
   const [plan, setPlan] = useState<PlanApiResponse | null>(null);
 
@@ -30,6 +33,8 @@ export function HomePlanSection({
         <PlanGenerator
           onPlanGenerated={handlePlanGenerated}
           variant={variant}
+          embedded={embedded}
+          tone={tone}
         />
       </div>
       {plan && (
@@ -37,6 +42,7 @@ export function HomePlanSection({
           plan={plan}
           variant={variant}
           loginHref={loginHref}
+          tone={tone}
         />
       )}
     </>

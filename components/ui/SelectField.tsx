@@ -13,6 +13,7 @@ type SelectFieldProps = {
   options: readonly SelectOption[];
   id?: string;
   "aria-label"?: string;
+  tone?: "light" | "glass";
 };
 
 export function SelectField({
@@ -21,7 +22,9 @@ export function SelectField({
   options,
   id,
   "aria-label": ariaLabel,
+  tone = "light",
 }: SelectFieldProps) {
+  const isGlass = tone === "glass";
   const generatedId = useId();
   const fieldId = id ?? generatedId;
   const listboxId = `${fieldId}-listbox`;
@@ -111,8 +114,10 @@ export function SelectField({
         aria-controls={listboxId}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={handleTriggerKeyDown}
-        className={`monsoon-input flex w-full items-center justify-between gap-3 rounded-2xl text-left ${
-          open ? "border-monsoon-secondary ring-2 ring-monsoon-secondary/20" : ""
+        className={`flex w-full items-center justify-between gap-3 text-left ${
+          isGlass
+            ? `hero-glass-input ${open ? "border-teal-400/60 ring-2 ring-teal-400/20" : ""}`
+            : `monsoon-input rounded-2xl ${open ? "border-monsoon-secondary ring-2 ring-monsoon-secondary/20" : ""}`
         }`}
       >
         <span className="truncate">{selected?.label}</span>
@@ -120,8 +125,14 @@ export function SelectField({
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"
-          className={`h-5 w-5 shrink-0 text-slate-400 transition-transform ${
-            open ? "rotate-180 text-monsoon-secondary" : ""
+          className={`h-5 w-5 shrink-0 transition-transform ${
+            isGlass
+              ? open
+                ? "rotate-180 text-teal-300"
+                : "text-slate-400"
+              : open
+                ? "rotate-180 text-monsoon-secondary"
+                : "text-slate-400"
           }`}
         >
           <path
@@ -137,7 +148,11 @@ export function SelectField({
           id={listboxId}
           role="listbox"
           aria-labelledby={fieldId}
-          className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white py-1.5 shadow-[0_8px_30px_rgba(15,23,42,0.12)]"
+          className={`absolute z-20 mt-2 w-full overflow-hidden rounded-xl border py-1.5 shadow-[0_8px_30px_rgba(15,23,42,0.12)] ${
+            isGlass
+              ? "border-white/15 bg-slate-900/95 backdrop-blur-md"
+              : "border-slate-200 bg-white"
+          }`}
         >
           {options.map((option, index) => {
             const isSelected = option.value === value;
@@ -153,8 +168,12 @@ export function SelectField({
                   onKeyDown={(event) => handleOptionKeyDown(event, index)}
                   className={`flex w-full items-center justify-between px-4 py-3 text-left text-base transition ${
                     isSelected
-                      ? "bg-teal-50 font-medium text-monsoon-secondary"
-                      : "text-monsoon-primary hover:bg-slate-50"
+                      ? isGlass
+                        ? "bg-teal-500/20 font-medium text-teal-200"
+                        : "bg-teal-50 font-medium text-monsoon-secondary"
+                      : isGlass
+                        ? "text-slate-200 hover:bg-white/10"
+                        : "text-monsoon-primary hover:bg-slate-50"
                   }`}
                 >
                   <span>{option.label}</span>

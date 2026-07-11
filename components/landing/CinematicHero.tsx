@@ -2,17 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { OtpLoginForm } from "@/components/auth/OtpLoginForm";
+import { PlanGenerator } from "@/components/ui/PlanGenerator";
 import { IconCloudRain } from "@/components/dashboard/CitizenIcons";
+import type { PlanApiResponse } from "@/lib/types/plan";
 
 type CinematicHeroProps = {
   loginHref: string;
   isAuthenticated: boolean;
   weatherWidget?: React.ReactNode;
+  onPlanGenerated?: (plan: PlanApiResponse) => void;
 };
 
 const FROSTED_CARD =
-  "rounded-2xl border border-slate-700/50 bg-[#0f172a]/60 p-8 shadow-2xl shadow-teal-950/20 backdrop-blur-xl ring-1 ring-white/10";
+  "rounded-2xl border border-teal-500/20 bg-[#0f172a]/70 p-6 shadow-2xl shadow-teal-950/30 backdrop-blur-xl ring-1 ring-teal-400/10 sm:p-8";
 
 const HERO_CHIPS = [
   "Real-time flood alerts",
@@ -30,6 +32,7 @@ export function CinematicHero({
   loginHref,
   isAuthenticated,
   weatherWidget,
+  onPlanGenerated,
 }: CinematicHeroProps) {
   return (
     <section className="relative min-h-[88vh] overflow-hidden bg-[#0B1120] pb-24 text-white print:hidden md:pb-32">
@@ -82,8 +85,8 @@ export function CinematicHero({
           </div>
         </header>
 
-        <div className="relative grid w-full flex-1 grid-cols-1 items-center gap-12 px-[15px] py-12 md:px-[50px] lg:grid-cols-2 lg:py-16">
-          <div>
+        <div className="relative grid w-full flex-1 grid-cols-1 items-start gap-12 px-[15px] py-12 md:px-[50px] lg:grid-cols-2 lg:py-16">
+          <div className="lg:pt-4">
             <div className="landing-fade-up">{weatherWidget}</div>
 
             <p className="landing-fade-up landing-fade-up-delay-1 text-xs font-bold uppercase tracking-[0.2em] text-teal-400">
@@ -111,19 +114,27 @@ export function CinematicHero({
               ))}
             </div>
 
-            <div className="landing-fade-up landing-fade-up-delay-3 mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href={loginHref}
+            <div className="landing-fade-up landing-fade-up-delay-3 mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <a
+                href="#quick-plan"
                 className="monsoon-touch-target inline-flex justify-center rounded-lg bg-teal-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-900/30 transition hover:bg-teal-400"
               >
-                {isAuthenticated ? "Go to Dashboard" : "Create Free Plan"}
-              </Link>
-              <a
-                href="#how-it-works"
-                className="monsoon-touch-target inline-flex justify-center rounded-lg border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:border-teal-400/50 hover:bg-white/15"
-              >
-                See How It Works
+                {isAuthenticated ? "Generate Another Plan" : "Create Free Plan"}
               </a>
+              <a
+                href="#realtime-alerts"
+                className="monsoon-touch-target inline-flex justify-center rounded-lg border border-amber-400/40 bg-amber-500/20 px-6 py-3 text-sm font-semibold text-amber-50 transition hover:border-amber-300/60 hover:bg-amber-500/30"
+              >
+                Live Alert System
+              </a>
+              {!isAuthenticated && (
+                <Link
+                  href={loginHref}
+                  className="monsoon-touch-target inline-flex justify-center rounded-lg border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:border-teal-400/50 hover:bg-white/15"
+                >
+                  Sign In to Save
+                </Link>
+              )}
             </div>
 
             <ul className="landing-fade-up landing-fade-up-delay-3 mt-6 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-400">
@@ -137,34 +148,57 @@ export function CinematicHero({
           </div>
 
           <div className="landing-fade-up landing-fade-up-delay-2 w-full lg:justify-self-end">
-            <div className={FROSTED_CARD} id="get-started">
-              <p className="mb-5 text-center text-xs font-semibold uppercase tracking-[0.18em] text-teal-300/90">
-                {isAuthenticated ? "Welcome back" : "Get started in minutes"}
-              </p>
-              {isAuthenticated ? (
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-white">Your plan awaits</h2>
-                  <p className="mt-2 text-sm text-slate-300">
-                    Continue building your family&apos;s monsoon safety plan.
-                  </p>
+            <div className={FROSTED_CARD} id="quick-plan">
+              <div className="mb-5 text-center">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-300/90">
+                  {isAuthenticated ? "Instant generator" : "No login required"}
+                </p>
+                <h2 className="mt-2 text-xl font-bold text-white sm:text-2xl">
+                  Quick Emergency Survival Plan
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                  Live Open-Meteo weather + AI checklist in under 3 minutes.
+                  {isAuthenticated && " Guest plans are not saved — use dashboard for history."}
+                </p>
+              </div>
+
+              <div className="hero-glass-panel">
+                <PlanGenerator
+                  variant="guest"
+                  embedded
+                  tone="glass"
+                  onPlanGenerated={(plan) => onPlanGenerated?.(plan)}
+                />
+              </div>
+
+              <p className="mt-4 text-center text-xs text-slate-400">
+                Results appear below the hero after generation.{" "}
+                {isAuthenticated ? (
                   <Link
-                    href={loginHref}
-                    className="monsoon-btn-primary mt-6 inline-flex w-full justify-center"
+                    href="/dashboard"
+                    className="font-semibold text-teal-300 hover:text-teal-200"
                   >
-                    Go to My Dashboard
+                    Open dashboard →
                   </Link>
-                </div>
-              ) : (
-                <OtpLoginForm variant="embedded" tone="glass" />
-              )}
+                ) : (
+                  <>
+                    <Link
+                      href={loginHref}
+                      className="font-semibold text-teal-300 hover:text-teal-200"
+                    >
+                      Sign in to save →
+                    </Link>
+                  </>
+                )}
+              </p>
             </div>
           </div>
         </div>
 
         <a
-          href="#how-it-works"
+          href="#weather-check"
           className="landing-scroll-hint mx-auto mb-6 flex flex-col items-center gap-1 text-slate-400 transition hover:text-teal-300"
-          aria-label="Scroll to how it works"
+          aria-label="Scroll to weather check"
         >
           <span className="text-[10px] font-medium uppercase tracking-[0.2em]">
             Explore

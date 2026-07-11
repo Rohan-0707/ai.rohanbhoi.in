@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { LandingRealtimeAlerts } from "@/components/landing/LandingRealtimeAlerts";
+import { LandingSignIn } from "@/components/landing/LandingSignIn";
 import { LandingWeatherChecker } from "@/components/landing/LandingWeatherChecker";
-import { LandingQuickPlan } from "@/components/landing/LandingQuickPlan";
 import {
   IconCloudRain,
   IconFamily,
@@ -53,6 +54,12 @@ const FEATURES = [
     icon: IconFamily,
   },
   {
+    title: "Community Broadcasts",
+    description:
+      "Socket.io pushes one live alert to every connected browser — families and neighbors stay aligned without refreshing.",
+    icon: IconCloudRain,
+  },
+  {
     title: "Always Accessible",
     description:
       "Download plans to your phone — usable even when networks fail.",
@@ -75,9 +82,13 @@ const ICON_WRAP =
 
 type LandingFeaturesProps = {
   loginHref: string;
+  isAuthenticated: boolean;
 };
 
-export function LandingFeatures({ loginHref }: LandingFeaturesProps) {
+export function LandingFeatures({
+  loginHref,
+  isAuthenticated,
+}: LandingFeaturesProps) {
   return (
     <div className="w-full space-y-20">
       <section
@@ -94,7 +105,9 @@ export function LandingFeatures({ loginHref }: LandingFeaturesProps) {
 
       <LandingWeatherChecker />
 
-      <LandingQuickPlan loginHref={loginHref} />
+      <LandingRealtimeAlerts loginHref={loginHref} />
+
+      <LandingSignIn loginHref={loginHref} isAuthenticated={isAuthenticated} />
 
       <section id="how-it-works" className="print:hidden">
         <div className="text-center">
@@ -158,7 +171,7 @@ export function LandingFeatures({ loginHref }: LandingFeaturesProps) {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature) => {
             const Icon = feature.icon;
 

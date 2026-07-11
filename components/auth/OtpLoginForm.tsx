@@ -293,8 +293,12 @@ export function OtpLoginForm({
                 >
                   <span className="font-semibold">Evaluator Access:</span> Use{" "}
                   <span className="font-mono">judge@google.com</span> with OTP{" "}
-                  <span className="font-mono">123456</span> to test the
-                  dashboard.
+                  <span className="font-mono">123456</span> for the dashboard, or
+                  try live alerts at{" "}
+                  <a href="#realtime-alerts" className="font-semibold text-teal-300 underline">
+                    #realtime-alerts
+                  </a>{" "}
+                  without signing in.
                 </p>
               </label>
             ) : (

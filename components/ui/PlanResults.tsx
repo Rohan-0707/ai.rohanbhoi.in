@@ -13,6 +13,7 @@ type PlanResultsProps = {
   plan: PlanApiResponse;
   variant?: "dashboard" | "guest";
   loginHref?: string;
+  tone?: "light" | "glass";
 };
 
 function getLanguageLabel(code?: string): string | null {
@@ -170,17 +171,36 @@ export function PlanResults({
   plan,
   variant = "dashboard",
   loginHref = "/#get-started",
+  tone = "light",
 }: PlanResultsProps) {
+  const isGlass = tone === "glass";
   const languageLabel = getLanguageLabel(plan.language);
   const checklistPhases = normalizeChecklist(plan.checklist);
   const travelAdvisories = plan.travelAdvisories ?? [];
   const checklistCount = countChecklistItems(checklistPhases);
   const isGuest = variant === "guest" || plan.saved === false;
+  const cardClass = isGlass
+    ? "rounded-xl border border-white/10 bg-white/5 p-6 sm:p-7"
+    : "citizen-card print:border print:border-slate-300 print:bg-white print:shadow-none";
+  const headingClass = isGlass
+    ? "text-lg font-semibold tracking-tight text-white"
+    : "citizen-heading text-lg print:text-black";
+  const subtextClass = isGlass
+    ? "mt-1 text-sm leading-relaxed text-slate-400"
+    : "citizen-subtext mt-1 print:text-slate-700";
+  const listItemClass = isGlass
+    ? "flex gap-3 rounded-xl border border-white/10 bg-black/20 px-4 py-3 print:border print:border-slate-200 print:bg-white"
+    : "print-plan-break-avoid flex gap-3 rounded-2xl bg-slate-50 px-4 py-3 print:border print:border-slate-200 print:bg-white";
+  const listTextClass = isGlass
+    ? "text-sm leading-relaxed text-slate-200 print:text-black"
+    : "text-sm leading-relaxed text-slate-700 print:text-black";
 
   return (
     <section
       id="emergency-plan-print"
-      className="mt-8 space-y-6 print:mt-0 print:block print:w-full print:max-w-none print:bg-white print:text-black"
+      className={`mt-6 space-y-6 print:mt-0 print:block print:w-full print:max-w-none print:bg-white print:text-black ${
+        isGlass ? "hero-glass-results" : "mt-8"
+      }`}
     >
       <p className="hidden border-b border-slate-300 pb-3 text-sm font-semibold text-black print:block">
         JalVayu AI · Emergency Survival Plan ·{" "}
@@ -193,10 +213,18 @@ export function PlanResults({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between print:hidden">
         <div>
-          <h2 className="citizen-heading text-xl print:text-2xl">
+          <h2
+            className={`text-xl font-semibold tracking-tight print:text-2xl ${
+              isGlass ? "text-white" : "citizen-heading"
+            }`}
+          >
             Your Emergency Survival Plan
           </h2>
-          <p className="citizen-subtext mt-1 print:text-slate-700">
+          <p
+            className={`mt-1 text-sm leading-relaxed print:text-slate-700 ${
+              isGlass ? "text-slate-300" : "citizen-subtext"
+            }`}
+          >
             Tailored to live weather and forecast for your area — save or print
             for offline use during outages.
           </p>
@@ -205,7 +233,11 @@ export function PlanResults({
         <button
           type="button"
           onClick={printEmergencyPlan}
-          className="flex items-center space-x-2 self-start rounded-lg border border-slate-300 px-4 py-2 text-slate-700 transition hover:bg-slate-100"
+          className={`flex items-center space-x-2 self-start rounded-lg border px-4 py-2 text-sm font-medium transition ${
+            isGlass
+              ? "border-white/20 bg-white/10 text-slate-100 hover:bg-white/15"
+              : "border-slate-300 text-slate-700 hover:bg-slate-100"
+          }`}
         >
           <PrinterIcon />
           <span className="text-sm font-medium">Save Offline (PDF)</span>
@@ -213,27 +245,43 @@ export function PlanResults({
       </div>
 
       <div
-        className={`print:hidden rounded-2xl border px-5 py-4 ${
+        className={`print:hidden rounded-xl border px-5 py-4 ${
           isGuest
-            ? "border-slate-200 bg-slate-50"
-            : "border-teal-200 bg-teal-50"
+            ? isGlass
+              ? "border-white/15 bg-white/5"
+              : "border-slate-200 bg-slate-50"
+            : isGlass
+              ? "border-teal-400/30 bg-teal-500/10"
+              : "border-teal-200 bg-teal-50"
         }`}
       >
         {isGuest ? (
           <>
-            <p className="text-sm font-medium text-slate-800">
+            <p
+              className={`text-sm font-medium ${
+                isGlass ? "text-slate-100" : "text-slate-800"
+              }`}
+            >
               Your plan is ready. Nothing was saved to our servers — use{" "}
               <strong>Save Offline (PDF)</strong> above to keep a copy on your
               device.
             </p>
-            <p className="mt-2 text-xs text-slate-600">
+            <p
+              className={`mt-2 text-xs ${
+                isGlass ? "text-slate-400" : "text-slate-600"
+              }`}
+            >
               <strong>Sign in</strong> only if you want encrypted plan history,
               saved locations, and real-time dashboard alerts. Login is optional
               for this quick generator.
             </p>
             <Link
               href={loginHref}
-              className="mt-3 inline-flex text-sm font-semibold text-teal-600 hover:text-teal-700"
+              className={`mt-3 inline-flex text-sm font-semibold ${
+                isGlass
+                  ? "text-teal-300 hover:text-teal-200"
+                  : "text-teal-600 hover:text-teal-700"
+              }`}
             >
               Sign in to save plans privately →
             </Link>
@@ -254,7 +302,11 @@ export function PlanResults({
           </>
         )}
         {isGuest && languageLabel && (
-          <p className="mt-2 text-xs text-slate-600 print:text-slate-700">
+          <p
+            className={`mt-2 text-xs print:text-slate-700 ${
+              isGlass ? "text-slate-400" : "text-slate-600"
+            }`}
+          >
             Language: {languageLabel}
             {plan.translatedWith === "google" &&
               " · translated via Google Cloud Translation"}
@@ -268,32 +320,32 @@ export function PlanResults({
         </div>
       )}
 
-      <div className="citizen-card print-plan-break-avoid print:border print:border-slate-300 print:bg-white print:shadow-none">
-        <h3 className="citizen-heading text-lg print:text-black">
-          Timeline Checklist
-        </h3>
-        <p className="citizen-subtext mt-1 print:text-slate-700">
+      <div className={`print-plan-break-avoid ${cardClass}`}>
+        <h3 className={headingClass}>Timeline Checklist</h3>
+        <p className={subtextClass}>
           {checklistCount} actions across Before, During, and After the storm
         </p>
 
         <div className="mt-6 space-y-6">
           {checklistPhases.map((phase, phaseIndex) => (
             <div key={`${plan.id}-phase-${phaseIndex}`}>
-              <h4 className="text-sm font-semibold uppercase tracking-wide text-monsoon-secondary print:text-black">
+              <h4
+                className={`text-sm font-semibold uppercase tracking-wide print:text-black ${
+                  isGlass ? "text-teal-300" : "text-monsoon-secondary"
+                }`}
+              >
                 {phase.phase}
               </h4>
               <ol className="mt-3 space-y-3">
                 {phase.items.map((item, index) => (
                   <li
                     key={`${plan.id}-check-${phaseIndex}-${index}`}
-                    className="print-plan-break-avoid flex gap-3 rounded-2xl bg-slate-50 px-4 py-3 print:border print:border-slate-200 print:bg-white"
+                    className={listItemClass}
                   >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-monsoon-secondary text-sm font-semibold text-white print:border print:border-slate-400 print:bg-white print:text-black">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal-500 text-sm font-semibold text-white print:border print:border-slate-400 print:bg-white print:text-black">
                       {index + 1}
                     </span>
-                    <p className="text-sm leading-relaxed text-slate-700 print:text-black">
-                      {item}
-                    </p>
+                    <p className={listTextClass}>{item}</p>
                   </li>
                 ))}
               </ol>
@@ -303,51 +355,57 @@ export function PlanResults({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2 print:grid-cols-1">
-        <div className="citizen-card print-plan-break-avoid print:border print:border-slate-300 print:bg-white print:shadow-none">
-          <h3 className="citizen-heading text-lg print:text-black">Safety Tips</h3>
-          <p className="citizen-subtext mt-1 print:text-slate-700">
-            Broader guidance to keep your family safe
-          </p>
+        <div className={`print-plan-break-avoid ${cardClass}`}>
+          <h3 className={headingClass}>Safety Tips</h3>
+          <p className={subtextClass}>Broader guidance to keep your family safe</p>
           <ul className="mt-5 space-y-3">
             {plan.recommendations.map((item, index) => (
               <li
                 key={`${plan.id}-rec-${index}`}
-                className="rounded-2xl border-l-4 border-monsoon-secondary bg-slate-50 px-4 py-3 print:border print:border-slate-200 print:border-l-slate-400 print:bg-white"
+                className={
+                  isGlass
+                    ? "rounded-xl border-l-4 border-teal-400/60 bg-black/20 px-4 py-3 print:border print:border-slate-200 print:bg-white"
+                    : "rounded-2xl border-l-4 border-monsoon-secondary bg-slate-50 px-4 py-3 print:border print:border-slate-200 print:border-l-slate-400 print:bg-white"
+                }
               >
-                <p className="text-sm leading-relaxed text-slate-700 print:text-black">
-                  {item}
-                </p>
+                <p className={listTextClass}>{item}</p>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="citizen-card print-plan-break-avoid print:border print:border-slate-300 print:bg-white print:shadow-none">
+        <div className={`print-plan-break-avoid ${cardClass}`}>
           <div className="flex items-center gap-2 print:hidden">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-50 text-monsoon-secondary print:border print:border-slate-300 print:bg-white">
+            <div
+              className={`flex h-9 w-9 items-center justify-center rounded-lg print:border print:border-slate-300 print:bg-white ${
+                isGlass
+                  ? "bg-teal-500/20 text-teal-300"
+                  : "bg-teal-50 text-monsoon-secondary"
+              }`}
+            >
               <RouteIcon />
             </div>
             <div>
-              <h3 className="citizen-heading text-lg print:text-black">
-                Travel &amp; Evacuation Advisories
-              </h3>
-              <p className="citizen-subtext mt-0.5 print:text-slate-700">
+              <h3 className={headingClass}>Travel &amp; Evacuation Advisories</h3>
+              <p className={subtextClass}>
                 Neighborhood-aware routes and areas to avoid
               </p>
             </div>
           </div>
-          <h3 className="citizen-heading hidden text-lg print:block print:text-black">
+          <h3 className={`${headingClass} hidden print:block`}>
             Travel &amp; Evacuation Advisories
           </h3>
           <ul className="mt-5 space-y-3">
             {travelAdvisories.map((item, index) => (
               <li
                 key={`${plan.id}-travel-${index}`}
-                className="rounded-2xl border border-amber-200/80 bg-amber-50/60 px-4 py-3 print:border print:border-slate-200 print:bg-white"
+                className={
+                  isGlass
+                    ? "rounded-xl border border-amber-400/25 bg-amber-500/10 px-4 py-3 print:border print:border-slate-200 print:bg-white"
+                    : "rounded-2xl border border-amber-200/80 bg-amber-50/60 px-4 py-3 print:border print:border-slate-200 print:bg-white"
+                }
               >
-                <p className="text-sm leading-relaxed text-slate-700 print:text-black">
-                  {item}
-                </p>
+                <p className={listTextClass}>{item}</p>
               </li>
             ))}
           </ul>
