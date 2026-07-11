@@ -1,0 +1,42 @@
+module.exports = {
+  apps: [
+    {
+      name: "jalvayu-web",
+      script: "node_modules/next/dist/bin/next",
+      args: "start -p 2510",
+      cwd: __dirname,
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "512M",
+      env: {
+        NODE_ENV: "production",
+        PORT: 2510,
+      },
+      error_file: "./logs/web-error.log",
+      out_file: "./logs/web-out.log",
+      merge_logs: true,
+      time: true,
+    },
+    {
+      name: "jalvayu-socket",
+      script: "./server/server.js",
+      cwd: __dirname,
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "256M",
+      env: {
+        NODE_ENV: "production",
+        SOCKET_PORT: 3001,
+        CORS_ORIGIN: "https://ai.rohanbhoi.in",
+      },
+      error_file: "./logs/socket-error.log",
+      out_file: "./logs/socket-out.log",
+      merge_logs: true,
+      time: true,
+    },
+  ],
+};

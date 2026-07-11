@@ -1,0 +1,42 @@
+module.exports = {
+  apps: [
+    {
+      name: "jalvayu-dev-web",
+      script: "npm",
+      args: "run dev",
+      cwd: __dirname,
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "512M",
+      env: {
+        NODE_ENV: "development",
+      },
+      error_file: "./logs/dev-web-error.log",
+      out_file: "./logs/dev-web-out.log",
+      merge_logs: true,
+      time: true,
+    },
+    {
+      name: "jalvayu-dev-socket",
+      script: "./server/server.js",
+      cwd: __dirname,
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: ["server"],
+      watch_delay: 1000,
+      ignore_watch: ["node_modules", "logs", ".git"],
+      max_memory_restart: "256M",
+      env: {
+        NODE_ENV: "development",
+        SOCKET_PORT: 3001,
+      },
+      error_file: "./logs/dev-socket-error.log",
+      out_file: "./logs/dev-socket-out.log",
+      merge_logs: true,
+      time: true,
+    },
+  ],
+};

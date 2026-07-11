@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply overflow-x-hidden bg-monsoon-light text-monsoon-primary;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  a {
+    @apply touch-manipulation;
+  }
+}
+
+@layer components {
+  .monsoon-container {
+    @apply mx-auto w-full max-w-6xl px-[15px] lg:px-[50px];
+  }
+
+  .ops-page-padding {
+    @apply px-[15px] lg:px-[50px];
+  }
+
+  .monsoon-touch-target {
+    @apply inline-flex min-h-12 min-w-12 items-center justify-center;
+  }
+
+  .monsoon-input {
+    @apply min-h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-monsoon-primary shadow-sm outline-none transition placeholder:text-slate-400 focus:border-monsoon-secondary focus:ring-2 focus:ring-monsoon-secondary/20;
+  }
+
+  .monsoon-textarea {
+    @apply min-h-[7rem] w-full resize-y rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-monsoon-primary shadow-sm outline-none transition placeholder:text-slate-400 focus:border-monsoon-secondary focus:ring-2 focus:ring-monsoon-secondary/20;
+  }
+
+  .monsoon-btn-primary {
+    @apply monsoon-touch-target rounded-2xl bg-monsoon-secondary px-6 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-teal-600 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-monsoon-secondary/40 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .monsoon-btn-ghost {
+    @apply monsoon-touch-target rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition-all duration-200 hover:border-monsoon-secondary/40 hover:text-monsoon-primary;
+  }
+
+  .monsoon-stack {
+    @apply grid w-full grid-cols-1 gap-4 sm:grid-cols-2;
+  }
+
+  .citizen-card {
+    @apply rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md sm:p-8;
+  }
+
+  .premium-card {
+    @apply rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md sm:p-8;
+  }
+
+  .citizen-heading {
+    @apply font-semibold tracking-tight text-monsoon-primary;
+  }
+
+  .citizen-subtext {
+    @apply text-sm leading-relaxed text-slate-500;
+  }
+
+  /* Legacy ops classes — kept for /jury demo page only */
+  .ops-panel {
+    @apply rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6;
+  }
+
+  .ops-panel-elevated {
+    @apply ops-panel;
+  }
+
+  .monsoon-card {
+    @apply citizen-card;
+  }
+
+  .ops-heading {
+    @apply font-bold tracking-wide text-monsoon-primary;
+  }
+
+  .ops-subtext {
+    @apply citizen-subtext;
+  }
+
+  .monsoon-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(203 213 225) transparent;
+  }
+
+  .monsoon-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .monsoon-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .monsoon-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgb(203 213 225);
+    border-radius: 9999px;
+  }
+
+  .monsoon-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(148 163 184);
+  }
+}
+
+@layer utilities {
+  .ops-cloud-layer-a {
+    animation: ops-cloud-drift-a 28s ease-in-out infinite alternate;
+  }
+
+  .ops-cloud-layer-b {
+    animation: ops-cloud-drift-b 34s ease-in-out infinite alternate;
+  }
+
+  .ops-cloud-layer-c {
+    animation: ops-cloud-drift-c 22s ease-in-out infinite alternate;
+  }
+
+  .ops-lightning {
+    animation: ops-lightning-flash 9s ease-in-out infinite;
+  }
+
+  .ops-rain {
+    background-image: linear-gradient(
+      to bottom,
+      rgba(148, 163, 184, 0) 0%,
+      rgba(148, 163, 184, 0.35) 100%
+    );
+    background-size: 2px 48px;
+    animation: ops-rain-fall 0.7s linear infinite;
+  }
+}
+
+@keyframes ops-cloud-drift-a {
+  from {
+    transform: translateX(0) translateY(0);
+  }
+  to {
+    transform: translateX(6%) translateY(-2%);
+  }
+}
+
+@keyframes ops-cloud-drift-b {
+  from {
+    transform: translateX(0) translateY(0);
+  }
+  to {
+    transform: translateX(-5%) translateY(3%);
+  }
+}
+
+@keyframes ops-cloud-drift-c {
+  from {
+    transform: translateX(0) scale(1);
+  }
+  to {
+    transform: translateX(4%) scale(1.05);
+  }
+}
+
+@keyframes ops-lightning-flash {
+  0%,
+  88%,
+  100% {
+    opacity: 0;
+  }
+  90% {
+    opacity: 0.45;
+  }
+  92% {
+    opacity: 0.08;
+  }
+  94% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes ops-rain-fall {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 48px;
+  }
+}

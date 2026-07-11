@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum HousingType {
+  APARTMENT
+  HOUSE
+  GROUND_FLOOR
+  TEMPORARY
+  VEHICLE
+}
+
+model User {
+  id               String          @id @default(cuid())
+  email            String          @unique @db.VarChar(255)
+  passwordHash     String?         @map("password_hash") @db.VarChar(255)
+  name             String?         @db.VarChar(120)
+  displayName      String?         @map("display_name") @db.VarChar(120)
+  otpCode          String?         @map("otp_code") @db.VarChar(6)
+  otpExpiry        DateTime?       @map("otp_expiry")
+  otpAttempts      Int             @default(0) @map("otp_attempts")
+  otpChannel       String?         @map("otp_channel") @db.VarChar(20)
+  phone            String?         @db.VarChar(20)
+  defaultLocation  String?         @map("default_location") @db.VarChar(255)
+  housingType      String?         @map("housing_type") @db.VarChar(50)
+  familySize       Int?            @map("family_size")
+  role             UserRole        @default(USER)
+  isActive         Boolean         @default(true) @map("is_active")
+  emailVerified    Boolean         @default(false) @map("email_verified")
+  lastLoginAt      DateTime?       @map("last_login_at")
+  encryptedProfile String?         @map("encrypted_profile") @db.Text
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+  emergencyPlans   EmergencyPlan[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model EmergencyPlan {
+  id                    String      @id @default(cuid())
+  userId                String?     @map("user_id")
+  user                  User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location              String      @db.VarChar(255)
+  familySize            Int         @map("family_size")
+  housingType           HousingType @map("housing_type")
+  language              String      @default("en") @db.VarChar(10)
+  specialNeeds          String?     @map("special_needs") @db.Text
+  checklist             Json
+  safetyRecommendations Json        @map("safety_recommendations")
+  summary               String?     @db.Text
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([location])
+  @@map("emergency_plans")
+}
