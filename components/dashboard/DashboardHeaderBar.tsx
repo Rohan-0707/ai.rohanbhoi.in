@@ -28,7 +28,7 @@ export function DashboardHeaderBar({
   );
 
   return (
-    <header className="z-30 shrink-0 border-b border-slate-200 bg-gradient-to-b from-white to-slate-50/80 shadow-sm lg:sticky lg:top-0">
+    <header className="z-30 shrink-0 border-b border-slate-200 bg-gradient-to-b from-white to-slate-50/80 shadow-sm print:hidden lg:sticky lg:top-0">
       <div className="flex min-h-[3.75rem] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <button

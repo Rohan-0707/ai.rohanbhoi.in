@@ -16,6 +16,7 @@ import {
 
 type PlanGeneratorProps = {
   onPlanGenerated: (plan: PlanApiResponse) => void;
+  variant?: "dashboard" | "guest";
 };
 
 const STEPS = [
@@ -24,7 +25,10 @@ const STEPS = [
   { id: 3, title: "Your home", icon: IconHome },
 ] as const;
 
-export function PlanGenerator({ onPlanGenerated }: PlanGeneratorProps) {
+export function PlanGenerator({
+  onPlanGenerated,
+  variant = "dashboard",
+}: PlanGeneratorProps) {
   const [step, setStep] = useState(1);
   const [location, setLocation] = useState("");
   const [familySize, setFamilySize] = useState(4);
@@ -96,9 +100,18 @@ export function PlanGenerator({ onPlanGenerated }: PlanGeneratorProps) {
           <IconCloudRain className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="citizen-heading text-xl">Create My Family Plan</h2>
+          <h2 className="citizen-heading text-xl">
+            {variant === "guest"
+              ? "Quick Emergency Survival Plan"
+              : "Create My Family Plan"}
+          </h2>
           <p className="citizen-subtext">
             Step {step} of 3 — {STEPS[step - 1].title}
+            {variant === "guest" && step === 1 && (
+              <span className="mt-1 block text-teal-600">
+                No login required — generate instantly below.
+              </span>
+            )}
           </p>
         </div>
       </div>
@@ -287,7 +300,14 @@ export function PlanGenerator({ onPlanGenerated }: PlanGeneratorProps) {
       </div>
 
       <div className="mt-4 flex justify-end">
-        <SecurityBadge compact />
+        {variant === "guest" ? (
+          <p className="text-xs text-slate-500">
+            Guest mode — your details are not stored. Sign in to save history
+            with AES-256 encryption.
+          </p>
+        ) : (
+          <SecurityBadge compact />
+        )}
       </div>
     </div>
   );

@@ -12,12 +12,12 @@ export function DashboardSidebar() {
 
   async function handleSignOut() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/");
     router.refresh();
   }
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden h-screen w-60 flex-col border-r border-slate-200 bg-white shadow-sm lg:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden h-screen w-60 flex-col border-r border-slate-200 bg-white shadow-sm print:hidden lg:flex">
       <div className="px-5 py-7">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-50 text-monsoon-secondary">

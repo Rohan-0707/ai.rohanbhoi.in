@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useState } from "react";
 import { IconLocation } from "@/components/dashboard/CitizenIcons";
 import { Modal } from "@/components/ui/Modal";
+import { normalizeChecklist } from "@/lib/plan-checklist";
 
 type HistoryPlan = {
   id: string;
   location: string;
   familySize: number;
   housingType: string;
-  checklist: string[];
+  checklist: unknown;
   safetyRecommendations: string[];
+  travelAdvisories?: string[];
   summary: string | null;
   createdAt: string;
 };
@@ -173,6 +175,9 @@ function AnalysisModal({
   plan: HistoryPlan;
   onClose: () => void;
 }) {
+  const checklistPhases = normalizeChecklist(plan.checklist);
+  const travelAdvisories = plan.travelAdvisories ?? [];
+
   return (
     <Modal open onClose={onClose} titleId="plan-modal-title">
       <div className="flex max-h-[min(90vh,calc(100dvh-2rem))] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.16)]">
@@ -204,18 +209,27 @@ function AnalysisModal({
           <div className="space-y-8">
             <div>
               <h3 className="text-sm font-semibold text-monsoon-secondary">
-                Your Checklist
+                Timeline Checklist
               </h3>
-              <ol className="mt-3 space-y-2">
-                {plan.checklist.map((item, index) => (
-                  <li
-                    key={`${plan.id}-c-${index}`}
-                    className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700"
-                  >
-                    {index + 1}. {item}
-                  </li>
+              <div className="mt-3 space-y-5">
+                {checklistPhases.map((phase, phaseIndex) => (
+                  <div key={`${plan.id}-phase-${phaseIndex}`}>
+                    <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      {phase.phase}
+                    </h4>
+                    <ol className="mt-2 space-y-2">
+                      {phase.items.map((item, index) => (
+                        <li
+                          key={`${plan.id}-c-${phaseIndex}-${index}`}
+                          className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700"
+                        >
+                          {index + 1}. {item}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 ))}
-              </ol>
+              </div>
             </div>
 
             <div>
@@ -233,6 +247,24 @@ function AnalysisModal({
                 ))}
               </ul>
             </div>
+
+            {travelAdvisories.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-monsoon-secondary">
+                  Travel &amp; Evacuation Advisories
+                </h3>
+                <ul className="mt-3 space-y-2">
+                  {travelAdvisories.map((item, index) => (
+                    <li
+                      key={`${plan.id}-t-${index}`}
+                      className="rounded-2xl border border-amber-200/80 bg-amber-50/60 px-4 py-3 text-sm text-slate-700"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       </div>

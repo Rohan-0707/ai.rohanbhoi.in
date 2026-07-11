@@ -9,23 +9,44 @@ import { mapHousingTypeToEnum } from "@/lib/housing.server";
 import { LANGUAGE_LABELS } from "@/lib/languages";
 import { validatePlanRequest } from "@/lib/plan-validation";
 import { encryptData, encryptOptional } from "@/lib/encryption";
-import { isGeneratedPlan } from "@/lib/types/plan";
+import { buildPlanWeatherContext } from "@/lib/plan-weather-context";
+import { isGeneratedPlan, type ChecklistPhase } from "@/lib/types/plan";
 import prisma from "@/lib/prisma";
 
-const ENGLISH_SYSTEM_PROMPT = `You are an expert disaster management AI specializing in monsoon preparedness. Analyze the user's location, family size, housing type, and any special medical or accessibility needs. Provide a hyper-localized emergency preparedness plan.
+const PLAN_JSON_SCHEMA = `{
+  "checklist": [
+    { "phase": "Before the storm", "items": ["2-4 actionable strings for pre-storm prep"] },
+    { "phase": "During the storm", "items": ["2-4 actionable strings for active storm response"] },
+    { "phase": "After the storm", "items": ["2-4 actionable strings for post-storm recovery"] }
+  ],
+  "recommendations": ["3 broader household safety guidelines as strings"],
+  "travelAdvisories": ["3-5 neighborhood-aware travel strings, e.g. roads/underpasses to avoid and elevated evacuation routes"]
+}`;
+
+const ENGLISH_SYSTEM_PROMPT = `You are an expert disaster management AI specializing in monsoon preparedness. Analyze the user's location, family size, housing type, any special medical or accessibility needs, AND the supplied liveWeatherContext from Open-Meteo (current conditions + forecast). Provide a hyper-localized emergency preparedness plan aligned to monsoon flash-flood response.
 
 IMPORTANT:
-- Write ALL checklist items and safety recommendations in English.
-- If special needs are provided, adjust evacuation steps, supply quantities, and medical preparedness accordingly.
-- You MUST respond in pure JSON with exactly two top-level keys: 'checklist' (an array of 5 highly actionable, specific prep strings) and 'recommendations' (an array of 3 broader safety guidelines).`;
+- Write ALL checklist items, recommendations, and travel advisories in English.
+- When liveWeatherContext.available is true, you MUST ground every phase in the actual temperature, rain mm, rain probability, wind, and daily forecast provided. Prioritize actions for imminent rain vs dry windows.
+- When liveWeatherContext.available is false, infer risks from the location text and typical monsoon patterns.
+- If special needs are provided, adjust evacuation steps, supply quantities, medical preparedness, and travel options accordingly.
+- The checklist MUST be categorized into exactly three distinct timeline phases in this order: "Before the storm", "During the storm", and "After the storm". Each phase must contain 2-4 highly actionable, location-specific strings tied to the weather outlook.
+- travelAdvisories MUST contain 3-5 specific, neighborhood-aware travel and evacuation strings (e.g., "Avoid the underpass on X Road", "Use elevated Y Road if Z junction floods") informed by current/f forecast rain.
+- You MUST respond in pure JSON matching this exact schema:
+${PLAN_JSON_SCHEMA}`;
 
 function buildNativeLanguagePrompt(languageLabel: string) {
-  return `You are an expert disaster management AI specializing in monsoon preparedness. Analyze the user's location, family size, housing type, language preference, and any special medical or accessibility needs. Provide a hyper-localized emergency preparedness plan.
+  return `You are an expert disaster management AI specializing in monsoon preparedness. Analyze the user's location, family size, housing type, language preference, any special medical or accessibility needs, AND the supplied liveWeatherContext from Open-Meteo (current conditions + forecast). Provide a hyper-localized emergency preparedness plan aligned to monsoon flash-flood response.
 
 IMPORTANT:
-- Write ALL checklist items and safety recommendations in ${languageLabel}.
-- If special needs are provided, adjust evacuation steps, supply quantities, and medical preparedness accordingly.
-- You MUST respond in pure JSON with exactly two top-level keys: 'checklist' (an array of 5 highly actionable, specific prep strings) and 'recommendations' (an array of 3 broader safety guidelines).`;
+- Write ALL checklist items, recommendations, and travel advisories in ${languageLabel}.
+- When liveWeatherContext.available is true, ground every phase in the actual Open-Meteo readings and forecast in liveWeatherContext.
+- When liveWeatherContext.available is false, infer risks from the location text and typical monsoon patterns.
+- If special needs are provided, adjust evacuation steps, supply quantities, medical preparedness, and travel options accordingly.
+- The checklist MUST be categorized into exactly three distinct timeline phases in this order, with the phase labels written in ${languageLabel} (equivalents of "Before the storm", "During the storm", "After the storm"). Each phase must contain 2-4 highly actionable, location-specific strings tied to the weather outlook.
+- travelAdvisories MUST contain 3-5 specific, neighborhood-aware travel and evacuation strings referencing local roads and the current/forecast rain.
+- You MUST respond in pure JSON with the same structure as this schema (phase names in ${languageLabel}):
+${PLAN_JSON_SCHEMA}`;
 }
 
 function getOpenAIClient() {
@@ -87,6 +108,10 @@ export async function POST(request: NextRequest) {
     const { location, familySize, housingType, language, specialNeeds } =
       validation.data;
     const languageLabel = LANGUAGE_LABELS[language];
+
+    const { summary: weatherSummary, openAiContext: liveWeatherContext } =
+      await buildPlanWeatherContext(location);
+
     const userPayload = {
       location,
       familySize,
@@ -94,13 +119,15 @@ export async function POST(request: NextRequest) {
       language,
       languageLabel,
       specialNeeds: specialNeeds || null,
+      liveWeatherContext,
     };
 
     const useGoogleTranslate =
       language !== "en" && isGoogleTranslateAvailable();
 
-    let checklist: string[];
+    let checklist: ChecklistPhase[];
     let recommendations: string[];
+    let travelAdvisories: string[];
 
     if (useGoogleTranslate) {
       const englishPlan = await generatePlanWithOpenAI(
@@ -112,10 +139,12 @@ export async function POST(request: NextRequest) {
         const translated = await translatePlanContent(
           englishPlan.checklist,
           englishPlan.recommendations,
+          englishPlan.travelAdvisories,
           language,
         );
         checklist = translated.checklist;
         recommendations = translated.recommendations;
+        travelAdvisories = translated.travelAdvisories;
       } catch (translateError) {
         console.warn(
           "[api/plan/generate] Google Translate failed, falling back to native AI output:",
@@ -127,6 +156,7 @@ export async function POST(request: NextRequest) {
         );
         checklist = nativePlan.checklist;
         recommendations = nativePlan.recommendations;
+        travelAdvisories = nativePlan.travelAdvisories;
       }
     } else if (language === "en") {
       const englishPlan = await generatePlanWithOpenAI(
@@ -135,6 +165,7 @@ export async function POST(request: NextRequest) {
       );
       checklist = englishPlan.checklist;
       recommendations = englishPlan.recommendations;
+      travelAdvisories = englishPlan.travelAdvisories;
     } else {
       const nativePlan = await generatePlanWithOpenAI(
         buildNativeLanguagePrompt(languageLabel),
@@ -142,26 +173,28 @@ export async function POST(request: NextRequest) {
       );
       checklist = nativePlan.checklist;
       recommendations = nativePlan.recommendations;
+      travelAdvisories = nativePlan.travelAdvisories;
     }
 
     const housingEnum = mapHousingTypeToEnum(housingType);
     const userId = await getSessionUserId();
 
-    const savedPlan = await prisma.emergencyPlan.create({
-      data: {
-        userId,
-        location: encryptData(location),
-        familySize,
-        housingType: housingEnum,
-        language,
-        specialNeeds: encryptOptional(specialNeeds || null),
-        checklist,
-        safetyRecommendations: recommendations,
-        summary: "Monsoon preparedness plan",
-      },
-    });
-
     if (userId) {
+      const savedPlan = await prisma.emergencyPlan.create({
+        data: {
+          userId,
+          location: encryptData(location),
+          familySize,
+          housingType: housingEnum,
+          language,
+          specialNeeds: encryptOptional(specialNeeds || null),
+          checklist,
+          safetyRecommendations: recommendations,
+          travelAdvisories,
+          summary: "Monsoon preparedness plan",
+        },
+      });
+
       await prisma.user.update({
         where: { id: userId },
         data: {
@@ -169,14 +202,28 @@ export async function POST(request: NextRequest) {
           housingType,
         },
       });
+
+      return NextResponse.json({
+        id: savedPlan.id,
+        checklist,
+        recommendations,
+        travelAdvisories,
+        language,
+        translatedWith: useGoogleTranslate ? "google" : "openai",
+        saved: true,
+        weather: weatherSummary,
+      });
     }
 
     return NextResponse.json({
-      id: savedPlan.id,
+      id: `guest-${Date.now()}`,
       checklist,
       recommendations,
+      travelAdvisories,
       language,
       translatedWith: useGoogleTranslate ? "google" : "openai",
+      saved: false,
+      weather: weatherSummary,
     });
   } catch (error) {
     console.error("[api/plan/generate] Error:", error);

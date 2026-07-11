@@ -15,7 +15,7 @@ export function CitizenDashboard({ user }: CitizenDashboardProps) {
 
   return (
     <div className="space-y-6">
-      <section className="premium-card relative overflow-hidden">
+      <section className="premium-card relative overflow-hidden print:hidden">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-monsoon-secondary/20 via-monsoon-secondary to-monsoon-secondary/20" />
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-monsoon-secondary shadow-sm">
@@ -44,7 +44,7 @@ export function CitizenDashboard({ user }: CitizenDashboardProps) {
       </section>
 
       <section>
-        <div className="mb-5">
+        <div className="mb-5 print:hidden">
           <h2 className="citizen-heading text-lg">My Monsoon Dashboard</h2>
           <p className="citizen-subtext mt-1">
             Create a plan tailored to your neighborhood and home.

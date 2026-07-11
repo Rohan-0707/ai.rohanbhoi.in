@@ -140,6 +140,35 @@
     background-size: 2px 48px;
     animation: ops-rain-fall 0.7s linear infinite;
   }
+
+  .landing-fade-up {
+    animation: landing-fade-up 0.75s ease-out both;
+  }
+
+  .landing-fade-up-delay-1 {
+    animation-delay: 0.12s;
+  }
+
+  .landing-fade-up-delay-2 {
+    animation-delay: 0.24s;
+  }
+
+  .landing-fade-up-delay-3 {
+    animation-delay: 0.36s;
+  }
+
+  .landing-scroll-hint {
+    animation: landing-scroll-hint 2s ease-in-out infinite;
+  }
+
+  .live-pulse-dot {
+    animation: live-pulse 2s ease-in-out infinite;
+  }
+
+  .landing-dot-grid {
+    background-image: radial-gradient(circle, rgb(148 163 184 / 0.22) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
 }
 
 @keyframes ops-cloud-drift-a {
@@ -192,5 +221,80 @@
   }
   to {
     background-position: 0 48px;
+  }
+}
+
+@keyframes landing-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landing-scroll-hint {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 1;
+  }
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+@media print {
+  @page {
+    margin: 1.2cm;
+    size: A4;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body.print-plan-active * {
+    visibility: hidden;
+  }
+
+  body.print-plan-active #emergency-plan-print,
+  body.print-plan-active #emergency-plan-print * {
+    visibility: visible;
+  }
+
+  body.print-plan-active #emergency-plan-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .print-plan-break-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 }

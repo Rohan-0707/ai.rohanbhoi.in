@@ -38,7 +38,7 @@ export function LandingMobileNav({ loginHref }: LandingMobileNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-[15px] pb-[env(safe-area-inset-bottom)] pt-2 backdrop-blur-md lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 px-[15px] pb-[env(safe-area-inset-bottom)] pt-2 backdrop-blur-md print:hidden lg:hidden">
       <div className="grid w-full grid-cols-3 gap-2">
         {NAV.map((item) => {
           const Icon = item.icon;

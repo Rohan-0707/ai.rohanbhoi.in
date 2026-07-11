@@ -31,6 +31,7 @@ export async function GET() {
         specialNeeds: true,
         checklist: true,
         safetyRecommendations: true,
+        travelAdvisories: true,
         summary: true,
         createdAt: true,
       },

@@ -12,7 +12,9 @@ export default async function DashboardLayout({
 
   return (
     <SocketProvider>
-      <JuryAlertBanner />
+      <div className="print:hidden">
+        <JuryAlertBanner />
+      </div>
       <DashboardShell user={user}>{children}</DashboardShell>
     </SocketProvider>
   );

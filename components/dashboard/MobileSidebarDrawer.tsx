@@ -18,14 +18,14 @@ export function MobileSidebarDrawer({ open, onClose }: MobileSidebarDrawerProps)
   async function handleSignOut() {
     onClose();
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push("/");
     router.refresh();
   }
 
   return (
     <>
       <div
-        className={`fixed inset-0 z-50 bg-slate-900/20 backdrop-blur-sm transition-opacity duration-200 lg:hidden ${
+        className={`fixed inset-0 z-50 bg-slate-900/20 backdrop-blur-sm transition-opacity duration-200 print:hidden lg:hidden ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         onClick={onClose}
@@ -33,7 +33,7 @@ export function MobileSidebarDrawer({ open, onClose }: MobileSidebarDrawerProps)
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[min(85vw,17rem)] flex-col border-r border-slate-200 bg-white transition-transform duration-200 lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[min(85vw,17rem)] flex-col border-r border-slate-200 bg-white transition-transform duration-200 print:hidden lg:hidden ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-hidden={!open}

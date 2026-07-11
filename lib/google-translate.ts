@@ -1,4 +1,9 @@
 import { type PlanLanguage } from "@/lib/languages";
+import {
+  flattenChecklistItems,
+  reassemblePhasedChecklist,
+  type ChecklistPhase,
+} from "@/lib/plan-checklist";
 
 const GOOGLE_TRANSLATE_ENDPOINT =
   "https://translation.googleapis.com/language/translate/v2";
@@ -66,15 +71,40 @@ export async function translateTexts(
 }
 
 export async function translatePlanContent(
-  checklist: string[],
+  checklist: ChecklistPhase[],
   recommendations: string[],
+  travelAdvisories: string[],
   targetLanguage: PlanLanguage,
-): Promise<{ checklist: string[]; recommendations: string[] }> {
-  const combined = [...checklist, ...recommendations];
+): Promise<{
+  checklist: ChecklistPhase[];
+  recommendations: string[];
+  travelAdvisories: string[];
+}> {
+  const checklistBundle = checklist.flatMap((entry) => [
+    entry.phase,
+    ...entry.items,
+  ]);
+  const combined = [
+    ...checklistBundle,
+    ...recommendations,
+    ...travelAdvisories,
+  ];
   const translated = await translateTexts(combined, targetLanguage);
 
+  const checklistTranslated = reassemblePhasedChecklist(
+    checklist,
+    translated.slice(0, checklistBundle.length),
+  );
+  const afterChecklist = checklistBundle.length;
+
   return {
-    checklist: translated.slice(0, checklist.length),
-    recommendations: translated.slice(checklist.length),
+    checklist: checklistTranslated,
+    recommendations: translated.slice(
+      afterChecklist,
+      afterChecklist + recommendations.length,
+    ),
+    travelAdvisories: translated.slice(
+      afterChecklist + recommendations.length,
+    ),
   };
 }

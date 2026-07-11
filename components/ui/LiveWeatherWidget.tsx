@@ -247,15 +247,21 @@ export function LiveWeatherWidget({ variant = "dark" }: LiveWeatherWidgetProps) 
 
   return (
     <div
-      className={`mb-5 inline-flex items-center gap-4 rounded-2xl p-4 ${shellClass}`}
+      className={`mb-5 inline-flex items-center gap-3 rounded-full px-4 py-2.5 ${shellClass}`}
       aria-label={`Live weather in ${weather.city}`}
       data-weather-error={error ? "true" : undefined}
     >
       <WeatherIcon kind={weather.icon} />
       <div>
-        <p className="text-2xl font-bold leading-none tabular-nums">
-          {weather.temperature}°C
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-2xl font-bold leading-none tabular-nums">
+            {weather.temperature}°C
+          </p>
+          <span className="flex items-center gap-1 rounded-full bg-teal-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-200">
+            <span className="live-pulse-dot h-1.5 w-1.5 rounded-full bg-teal-300" />
+            Live
+          </span>
+        </div>
         <p
           className={`mt-1 text-sm ${
             variant === "dark" ? "text-slate-300" : "text-slate-600"

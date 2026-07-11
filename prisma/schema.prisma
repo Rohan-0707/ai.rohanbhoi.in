@@ -58,6 +58,7 @@ model EmergencyPlan {
   specialNeeds          String?     @map("special_needs") @db.Text
   checklist             Json
   safetyRecommendations Json        @map("safety_recommendations")
+  travelAdvisories      Json        @default("[]") @map("travel_advisories")
   summary               String?     @db.Text
   createdAt             DateTime    @default(now()) @map("created_at")
   updatedAt             DateTime    @updatedAt @map("updated_at")
