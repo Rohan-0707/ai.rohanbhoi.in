@@ -1,6 +1,6 @@
 # Testing
 
-JalVayu AI uses [Vitest](https://vitest.dev/) for unit tests covering core business logic.
+JalVayu AI uses **Jest** + **React Testing Library** for component tests and **Vitest** for unit tests.
 
 ## Run tests
 
@@ -8,28 +8,24 @@ JalVayu AI uses [Vitest](https://vitest.dev/) for unit tests covering core busin
 npm test
 ```
 
-Watch mode:
+Component/integration tests (Jest):
 
 ```bash
-npm run test:watch
+npm test
+npm run test:jest:watch
 ```
 
-Coverage report:
+Unit tests (Vitest):
 
 ```bash
-npm run test:coverage
+npm run test:unit
 ```
 
-## What is covered
+## Jest component tests (`__tests__/`)
 
-| Area | Tests |
-|------|-------|
-| Plan validation | `lib/plan-validation.test.ts` — location, family size, housing, language |
-| AI response schema | `lib/types/plan.test.ts` — checklist/recommendations JSON guard |
-| Auth / OTP | `lib/auth.test.ts`, `lib/auth/login-identifier.test.ts` |
-| Phone parsing | `lib/phone/parse-for-interakt.test.ts` |
-| Housing enums | `lib/housing.server.test.ts` |
-| Languages | `lib/languages.test.ts` |
-| Google Translate helpers | `lib/housing.server.test.ts` — availability + no-op paths |
+| File | Coverage |
+|------|----------|
+| `__tests__/Home.test.tsx` | Landing page hero heading |
+| `__tests__/AlertBanner.test.tsx` | `JuryAlertBanner` severe weather alert UI |
 
-CI runs `npm test` and `npm run lint` on every push to `main` via `.github/workflows/ci.yml`.
+## Vitest unit tests (`lib/**/*.test.ts`)
